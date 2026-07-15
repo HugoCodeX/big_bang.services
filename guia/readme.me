@@ -1,0 +1,110 @@
+PASO 1.
+Se requiere que, al hacer clic en el botón "Nuevo ingreso" ubicado en /dashboard, se abra un modal para registrar un nuevo equipo.
+
+El formulario del modal debe contener los siguientes campos:
+
+Nombre del cliente (obligatorio).
+Teléfono (obligatorio).
+Equipo (lista desplegable) con las siguientes opciones:
+PC Escritorio
+Notebook
+PS3
+PS4
+PS5
+MacBook Air
+MacBook Pro
+iPhone
+Android
+Mac Escritorio
+Campo condicional
+
+Si el usuario selecciona Notebook, debe mostrarse automáticamente un nuevo campo llamado Marca del Notebook, con las siguientes opciones:
+
+Asus
+Lenovo
+HP
+Acer
+Dell
+MSI
+Huawei
+Samsung
+LG
+Razer
+Microsoft
+Gigabyte
+Chuwi
+Comentarios
+
+Agregar un campo de texto multilínea llamado "Comentarios", donde se pueda registrar cualquier información adicional relacionada con el ingreso del equipo, por ejemplo, el problema reportado por el cliente, observaciones o cualquier otro detalle relevante.
+
+Ademas necesito que al ingresar el equipo su estado siempre sea Ingresado.
+Ademas necesto que la persona pueda colocar la fecha de ingreso del equipo pero que esta se tome automaticamente(la app va funcionar en chile) ademas debe tomar la hora tambien se puede elegir pero que venga por defecto la hora puesta.
+
+PASO 2.
+En la tabla donde se muestran los ingresos registrados, se requiere visualizar las siguientes columnas:
+
+Orden (ID)
+Equipo
+Cliente
+Estado
+Acciones
+
+En la columna Acciones debe existir un botón "Ver información" o "Ver detalles", que permita acceder a toda la información registrada del ingreso.
+
+Al hacer clic en este botón, se debe mostrar una vista o modal con el detalle completo del equipo, incluyendo todos los datos asociados al ingreso, tales como:
+
+Número de orden (ID).
+Nombre del cliente.
+Teléfono.
+Tipo de equipo.
+Marca (cuando corresponda, por ejemplo, en notebooks).
+Comentarios u observaciones registradas.
+Estado actual del ingreso.
+Cualquier otro dato relacionado con el equipo y su registro.
+
+PASO 3.
+Al hacer clic en el botón **"Editar"**, se debe abrir un **modal** que permita actualizar la información del ingreso.
+
+### Datos editables
+
+El formulario debe permitir modificar los siguientes campos:
+
+* **Nombre del cliente**.
+* **Teléfono**.
+* **Estado**, mediante una lista desplegable con las siguientes opciones:
+
+  * Ingresado
+  * En diagnóstico
+  * En reparación
+  * Esperando repuesto
+  * Listo para retiro
+  * Entregado
+
+### Registro de mantenimiento
+
+Además de actualizar los datos del cliente, el usuario debe poder registrar la información del mantenimiento realizado al equipo.
+
+El formulario debe incluir los siguientes campos:
+
+* **Tipo de mantenimiento**, mediante una lista desplegable con las siguientes opciones:
+
+  * Mantenimiento completo
+  * Cambio de pantalla
+  * Reparación de componente
+
+#### Campo condicional
+
+Si el usuario selecciona **"Reparación de componente"**, debe mostrarse automáticamente un campo adicional llamado **"Componente reparado"**, donde podrá escribir el nombre del componente intervenido (por ejemplo: puerto de carga, bisagra, teclado, memoria RAM, placa madre, etc.).
+
+### Fecha del mantenimiento
+
+Debe existir un campo **"Fecha del mantenimiento"**, que se complete automáticamente con la fecha actual al abrir el formulario. Sin embargo, el usuario debe tener la posibilidad de modificarla manualmente si es necesario.
+
+### Observación general
+
+Agregar un campo de texto multilínea llamado **"Observación general"**, donde el técnico pueda registrar toda la información relevante del trabajo realizado, como diagnóstico, procedimientos efectuados, repuestos utilizados, recomendaciones o cualquier otra observación relacionada con la reparación.
+
+### Guardado
+
+Al guardar los cambios, toda la información editada y el historial del mantenimiento deben quedar asociados al ingreso correspondiente para poder consultarlos posteriormente desde la vista de detalles del equipo.
+
