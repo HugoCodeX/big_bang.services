@@ -28,7 +28,7 @@ function ThemeToggle() {
 
 export function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/70 px-4 backdrop-blur-xl md:px-6 dark:shadow-[0_1px_0_0_oklch(1_0_0_/_0.04),0_8px_24px_-12px_rgb(0_0_0_/_0.4)]">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/70 px-4 backdrop-blur-xl shadow-[0_1px_0_0_oklch(1_0_0_/_0.5)_inset,0_4px_16px_-8px_rgb(15_23_42_/_0.08)] md:px-6 dark:shadow-[0_1px_0_0_oklch(1_0_0_/_0.04),0_8px_24px_-12px_rgb(0_0_0_/_0.4)]">
       <button
         type="button"
         onClick={onMenuClick}
