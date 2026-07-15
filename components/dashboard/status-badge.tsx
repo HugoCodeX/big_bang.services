@@ -3,8 +3,8 @@ import type { EstadoEquipo } from '@/lib/equipos'
 const estilos: Record<EstadoEquipo, string> = {
   Ingresado: 'bg-primary/10 text-primary',
   'En diagnóstico': 'bg-accent/10 text-accent',
-  'En reparación': 'bg-warning/15 text-warning-foreground',
-  'Esperando repuesto': 'bg-warning/15 text-warning-foreground',
+  'En reparación': 'bg-warning/15 text-warning',
+  'Esperando repuesto': 'bg-warning/15 text-warning',
   'Listo para retiro': 'bg-success/15 text-success',
   Entregado: 'bg-muted text-muted-foreground',
 }
@@ -12,8 +12,8 @@ const estilos: Record<EstadoEquipo, string> = {
 const punto: Record<EstadoEquipo, string> = {
   Ingresado: 'bg-primary',
   'En diagnóstico': 'bg-accent',
-  'En reparación': 'bg-warning-foreground',
-  'Esperando repuesto': 'bg-warning-foreground',
+  'En reparación': 'bg-warning',
+  'Esperando repuesto': 'bg-warning',
   'Listo para retiro': 'bg-success',
   Entregado: 'bg-muted-foreground',
 }
