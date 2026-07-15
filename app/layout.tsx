@@ -20,7 +20,6 @@ export const metadata: Metadata = {
   title: 'big_bang.services — Panel de Administración',
   description:
     'Panel de administración para la gestión de servicio técnico: PCs, notebooks y consolas PlayStation.',
-  generator: 'v0.app',
   icons: {
     icon: [
       {
