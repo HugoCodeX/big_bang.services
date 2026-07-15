@@ -5,7 +5,7 @@ const estilos: Record<EstadoEquipo, string> = {
   'En diagnóstico': 'bg-accent/10 text-accent',
   'En reparación': 'bg-warning/15 text-warning-foreground',
   'Esperando repuesto': 'bg-warning/15 text-warning-foreground',
-  'Listo para retiro': 'bg-success/15 text-success-foreground',
+  'Listo para retiro': 'bg-success/15 text-success',
   Entregado: 'bg-muted text-muted-foreground',
 }
 
@@ -14,7 +14,7 @@ const punto: Record<EstadoEquipo, string> = {
   'En diagnóstico': 'bg-accent',
   'En reparación': 'bg-warning-foreground',
   'Esperando repuesto': 'bg-warning-foreground',
-  'Listo para retiro': 'bg-success-foreground',
+  'Listo para retiro': 'bg-success',
   Entregado: 'bg-muted-foreground',
 }
 
