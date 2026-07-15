@@ -28,7 +28,7 @@ export function StatCards({
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="group rounded-lg border border-border bg-card p-5 motion-safe:transition-shadow motion-safe:duration-200 hover:shadow-md"
+          className="group relative overflow-hidden rounded-lg border border-border bg-card p-5 motion-safe:transition-all motion-safe:duration-200 hover:-translate-y-0.5 hover:border-border/80 hover:shadow-lg dark:hover:shadow-[0_8px_24px_-8px_rgb(0_0_0_/_0.5)]"
         >
           <div className="flex items-start justify-between">
             <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">

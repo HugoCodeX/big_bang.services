@@ -128,38 +128,38 @@
 .dark {
   color-scheme: dark;
 
-  --background:          oklch(0.145 0.018 258);
-  --foreground:          oklch(0.95  0.008 252);
+  --background:          oklch(0.155 0.020 258);
+  --foreground:          oklch(0.96  0.006 252);
 
-  --card:                oklch(0.205 0.022 258);
-  --card-foreground:     oklch(0.95  0.008 252);
-  --popover:             oklch(0.215 0.024 258);
-  --popover-foreground:  oklch(0.95  0.008 252);
+  --card:                oklch(0.215 0.024 258);
+  --card-foreground:     oklch(0.96  0.006 252);
+  --popover:             oklch(0.235 0.026 258);
+  --popover-foreground:  oklch(0.96  0.006 252);
 
-  /* Primary — blue-400 (lighter for dark bg) */
-  --primary:             oklch(0.700 0.180 261);
+  /* Primary — vibrant blue-400 */
+  --primary:             oklch(0.720 0.195 261);
   --primary-foreground:  oklch(0.10  0.020 252);
 
-  --secondary:           oklch(0.245 0.022 258);
-  --secondary-foreground:oklch(0.88  0.012 252);
+  --secondary:           oklch(0.255 0.024 258);
+  --secondary-foreground:oklch(0.90  0.010 252);
 
-  --muted:               oklch(0.235 0.020 258);
-  --muted-foreground:    oklch(0.68  0.018 252);
+  --muted:               oklch(0.245 0.022 258);
+  --muted-foreground:    oklch(0.70  0.018 252);
 
   /* Accent — indigo-400 */
-  --accent:              oklch(0.700 0.190 276);
+  --accent:              oklch(0.720 0.200 276);
   --accent-foreground:   oklch(0.10  0.020 252);
 
-  --destructive:         oklch(0.680 0.205  27);
+  --destructive:         oklch(0.700 0.210  27);
   --destructive-foreground: oklch(0.99 0    0);
-  --success:             oklch(0.74  0.165 160);
+  --success:             oklch(0.76  0.170 160);
   --success-foreground:  oklch(0.95  0.040 160);
-  --warning:             oklch(0.82  0.155  80);
+  --warning:             oklch(0.84  0.160  80);
   --warning-foreground:  oklch(0.95  0.040  80);
 
-  --border:              oklch(0.305 0.022 258);
-  --input:               oklch(0.285 0.022 258);
-  --ring:                oklch(0.700 0.180 261);
+  --border:              oklch(0.325 0.024 258);
+  --input:               oklch(0.295 0.024 258);
+  --ring:                oklch(0.720 0.195 261);
 
   --chart-1:             oklch(0.700 0.180 261);
   --chart-2:             oklch(0.700 0.190 276);
@@ -180,7 +180,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
@@ -195,13 +195,64 @@
     touch-action: manipulation;
   }
 
+  /* Selection */
+  ::selection {
+    background: oklch(0.55 0.20 261 / 0.30);
+    color: inherit;
+  }
+  .dark ::selection {
+    background: oklch(0.72 0.195 261 / 0.40);
+    color: oklch(0.99 0 0);
+  }
+
+  /* Focus ring fallback (visible in both modes) */
+  *:focus-visible {
+    outline: 2px solid color-mix(in oklch, var(--ring) 50%, transparent);
+    outline-offset: 2px;
+  }
+
   .skip-to-content {
     @apply fixed left-2 top-2 z-[var(--z-toast)] -translate-y-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground opacity-0 outline-none transition-all focus-visible:translate-y-0 focus-visible:opacity-100;
   }
 
+  /* Dark mode polish — gradients, depth, focus */
+  .dark body {
+    background-image:
+      radial-gradient(ellipse 90% 60% at 50% -10%, oklch(0.32 0.06 261 / 0.35), transparent 70%),
+      radial-gradient(ellipse 70% 50% at 90% 0%, oklch(0.28 0.05 276 / 0.22), transparent 70%);
+    background-attachment: fixed;
+  }
+
+  .dark .bg-card {
+    box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.06);
+  }
+
+  .dark .bg-popover {
+    box-shadow:
+      inset 0 1px 0 0 oklch(1 0 0 / 0.08),
+      0 12px 32px -8px rgb(0 0 0 / 0.55),
+      0 2px 6px 0 rgb(0 0 0 / 0.25);
+  }
+
+  /* Stronger focus ring in dark mode */
+  .dark *:focus-visible {
+    outline-color: oklch(0.72 0.195 261 / 0.70);
+  }
+
+  /* Primary button — subtle gradient for depth in dark mode */
+  .dark [data-slot='button']:where([class*='bg-primary']):not([class*='bg-primary/']) {
+    background-image: linear-gradient(180deg, oklch(0.75 0.195 261) 0%, oklch(0.68 0.195 261) 100%);
+    box-shadow:
+      inset 0 1px 0 0 oklch(1 0 0 / 0.20),
+      0 1px 2px 0 rgb(0 0 0 / 0.30);
+  }
+  .dark [data-slot='button']:where([class*='bg-primary']):not([class*='bg-primary/']):hover {
+    background-image: linear-gradient(180deg, oklch(0.78 0.195 261) 0%, oklch(0.72 0.195 261) 100%);
+  }
+
   /* Scrollbars — themed for dark mode */
   .dark {
-    scrollbar-color: oklch(0.38 0.018 258) transparent;
+    scrollbar-color: oklch(0.40 0.020 258) transparent;
     scrollbar-width: thin;
   }
   .dark ::-webkit-scrollbar {
@@ -212,13 +263,13 @@
     background: transparent;
   }
   .dark ::-webkit-scrollbar-thumb {
-    background: oklch(0.38 0.018 258);
+    background: oklch(0.40 0.020 258);
     border: 2px solid transparent;
     background-clip: padding-box;
     border-radius: 9999px;
   }
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.48 0.020 258);
+    background: oklch(0.50 0.022 258);
     background-clip: padding-box;
   }
 }

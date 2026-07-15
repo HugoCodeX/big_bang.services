@@ -124,16 +124,29 @@ export function Sidebar({
                 href={item.href}
                 title={collapsed ? item.label : undefined}
                 className={cn(
-                  'flex cursor-pointer items-center rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring/40',
+                  'group relative flex cursor-pointer items-center rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring/40',
                   collapsed ? 'justify-center p-2.5' : 'gap-3 px-2.5 py-2',
                   item.active
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                    : 'text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground',
                 )}
                 aria-current={item.active ? 'page' : undefined}
                 aria-label={collapsed ? item.label : undefined}
               >
-                <item.icon className="size-4 shrink-0" />
+                {item.active && !collapsed && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-y-1.5 left-0 w-0.5 rounded-r-full bg-primary"
+                  />
+                )}
+                <item.icon
+                  className={cn(
+                    'size-4 shrink-0 transition-colors',
+                    item.active
+                      ? 'text-primary'
+                      : 'text-muted-foreground group-hover:text-sidebar-accent-foreground',
+                  )}
+                />
                 {!collapsed && item.label}
               </Link>
             ))}
