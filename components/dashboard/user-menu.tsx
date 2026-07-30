@@ -75,7 +75,7 @@ export function UserMenu() {
             <Mail className="size-4 shrink-0" />
             <span className="truncate">{user.email}</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('/dashboard/configuracion')}>
             <Settings className="size-4 shrink-0" />
             Configuración
           </DropdownMenuItem>
