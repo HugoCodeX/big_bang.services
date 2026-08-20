@@ -88,6 +88,7 @@ model Equipo {
   marca          String?
   cliente        String
   telefono       String
+  precio         String?
   comentarios    String         @default("")
   estado         String         @default("Ingresado")
   fechaIngreso   DateTime       @default(now())
@@ -95,10 +96,25 @@ model Equipo {
   updatedAt      DateTime       @updatedAt
 
   mantenimientos Mantenimiento[]
+  camposCustom  CampoCustom[]
 
   @@index([estado])
   @@index([tipo])
   @@map("equipo")
+}
+
+model CampoCustom {
+  id          Int      @id @default(autoincrement())
+  equipoId    Int
+  titulo      String
+  descripcion String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  equipo Equipo @relation(fields: [equipoId], references: [id], onDelete: Cascade)
+
+  @@index([equipoId])
+  @@map("campoCustom")
 }
 
 model Mantenimiento {

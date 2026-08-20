@@ -7,6 +7,7 @@ import {
   Check,
   ChevronDown,
   Clock,
+  DollarSign,
   Hash,
   Loader2,
   MessageSquare,
@@ -14,6 +15,7 @@ import {
   Phone,
   Plus,
   Save,
+  Tag,
   Trash2,
   User,
   Wrench,
@@ -24,6 +26,7 @@ import {
   getCurrentDateInChile,
   getCurrentTimeInChile,
   splitDateTimeInChile,
+  type CampoCustom,
   type EstadoEquipo,
   type Mantenimiento,
   type TipoMantenimiento,
@@ -73,10 +76,12 @@ export interface EquipoEditData {
   marca: string | null
   cliente: string
   telefono: string
+  precio: string | null
   comentarios: string
   estado: EstadoEquipo
   fechaIngreso: Date
   mantenimientos: Mantenimiento[]
+  camposCustom: CampoCustom[]
 }
 
 type MantFormState = {
@@ -93,6 +98,16 @@ const emptyMantForm: MantFormState = {
   observacion: '',
   fecha: '',
   hora: '',
+}
+
+type CampoCustomDraft = {
+  id: number
+  titulo: string
+  descripcion: string
+}
+
+function campoDraftFromItem(c: CampoCustom): CampoCustomDraft {
+  return { id: c.id, titulo: c.titulo, descripcion: c.descripcion }
 }
 
 function mantFromItem(m: Mantenimiento): MantFormState {
@@ -118,8 +133,13 @@ export function EditEquipoModal({
   const [estado, setEstado] = useState<EstadoEquipo>('Ingresado')
   const [cliente, setCliente] = useState('')
   const [telefono, setTelefono] = useState('')
+  const [precio, setPrecio] = useState('')
   const [mantForm, setMantForm] = useState<MantFormState>(emptyMantForm)
   const [mantList, setMantList] = useState<Mantenimiento[]>([])
+  const [camposCustom, setCamposCustom] = useState<CampoCustomDraft[]>([])
+  const [campoFieldErrors, setCampoFieldErrors] = useState<
+    Record<number, string | undefined>
+  >({})
   const [editingMantId, setEditingMantId] = useState<number | null>(null)
   const [editMantForm, setEditMantForm] = useState<MantFormState>(emptyMantForm)
   const [deletingMantId, setDeletingMantId] = useState<number | null>(null)
@@ -151,7 +171,10 @@ export function EditEquipoModal({
       setEstado(equipo.estado)
       setCliente(equipo.cliente)
       setTelefono(equipo.telefono)
+      setPrecio(equipo.precio ?? '')
       setMantList(equipo.mantenimientos)
+      setCamposCustom((equipo.camposCustom ?? []).map(campoDraftFromItem))
+      setCampoFieldErrors({})
       setMantForm({
         ...emptyMantForm,
         fecha: getCurrentDateInChile(),
@@ -175,7 +198,10 @@ export function EditEquipoModal({
   const isDirty =
     cliente !== equipo.cliente ||
     telefono !== equipo.telefono ||
-    estado !== equipo.estado
+    (precio.trim() || null) !== (equipo.precio ?? null) ||
+    estado !== equipo.estado ||
+    JSON.stringify(camposCustom) !==
+      JSON.stringify((equipo.camposCustom ?? []).map(campoDraftFromItem))
 
   function validateBasic() {
     const errors: { cliente?: string; telefono?: string } = {}
@@ -183,6 +209,20 @@ export function EditEquipoModal({
       errors.telefono = 'Formato chileno: +56 9 1234 5678'
     }
     setFieldErrors(errors)
+    return errors
+  }
+
+  function validateCampos() {
+    const errors: Record<number, string | undefined> = {}
+    const kept = camposCustom.filter(
+      (c) => c.titulo.trim() || c.descripcion.trim(),
+    )
+    for (const c of kept) {
+      if (!c.titulo.trim()) {
+        errors[c.id] = 'Indicá un título para el item.'
+      }
+    }
+    setCampoFieldErrors(errors)
     return errors
   }
 
@@ -210,13 +250,28 @@ export function EditEquipoModal({
   function handleSaveEstado() {
     if (!equipo) return
     const errors = validateBasic()
-    if (Object.keys(errors).length > 0) return
+    const campoErrors = validateCampos()
+    if (Object.keys(errors).length > 0 || Object.keys(campoErrors).length > 0)
+      return
 
     const formData = new FormData()
     formData.set('id', String(equipo.id))
     formData.set('estado', estado)
     formData.set('cliente', cliente.trim())
     formData.set('telefono', telefono.trim())
+    formData.set('precio', precio.trim())
+    formData.set(
+      'camposCustom',
+      JSON.stringify(
+        camposCustom
+          .filter((c) => c.titulo.trim() || c.descripcion.trim())
+          .map((c) => ({
+            id: c.id > 0 ? c.id : undefined,
+            titulo: c.titulo.trim(),
+            descripcion: c.descripcion.trim(),
+          })),
+      ),
+    )
 
     setFormError(null)
     startSaveTransition(async () => {
@@ -237,6 +292,28 @@ export function EditEquipoModal({
         setMantList(detail.mantenimientos)
       }
     })
+  }
+
+  function addCampoCustom() {
+    setCamposCustom((prev) => [
+      ...prev,
+      { id: -Date.now() - prev.length, titulo: '', descripcion: '' },
+    ])
+  }
+
+  function updateCampoCustom(
+    id: number,
+    patch: Partial<Pick<CampoCustomDraft, 'titulo' | 'descripcion'>>,
+  ) {
+    setCamposCustom((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+    )
+    setCampoFieldErrors((e) => ({ ...e, [id]: undefined }))
+  }
+
+  function removeCampoCustom(id: number) {
+    setCamposCustom((prev) => prev.filter((c) => c.id !== id))
+    setCampoFieldErrors((e) => ({ ...e, [id]: undefined }))
   }
 
   function handleAddMantenimiento(e: React.FormEvent) {
@@ -587,38 +664,200 @@ export function EditEquipoModal({
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label
-                      htmlFor={`${formId}-edit-estado`}
-                      className="text-sm font-medium text-card-foreground"
-                    >
-                      Estado
-                    </label>
-                    <div className="relative">
-                      <select
-                        id={`${formId}-edit-estado`}
-                        value={estado}
-                        onChange={(e) =>
-                          setEstado(e.target.value as EstadoEquipo)
-                        }
-                        className={cn(
-                          selectBase,
-                          selectOk,
-                          'pl-3',
-                        )}
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="flex flex-col gap-1.5">
+                      <label
+                        htmlFor={`${formId}-edit-estado`}
+                        className="text-sm font-medium text-card-foreground"
                       >
-                        {estados.map((e) => (
-                          <option key={e} value={e}>
-                            {e}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                        Estado
+                      </label>
+                      <div className="relative">
+                        <select
+                          id={`${formId}-edit-estado`}
+                          value={estado}
+                          onChange={(e) =>
+                            setEstado(e.target.value as EstadoEquipo)
+                          }
+                          className={cn(
+                            selectBase,
+                            selectOk,
+                            'pl-3',
+                          )}
+                        >
+                          {estados.map((e) => (
+                            <option key={e} value={e}>
+                              {e}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                      </div>
+                      <div className="mt-1">
+                        <StatusBadge estado={estado} />
+                      </div>
                     </div>
-                    <div className="mt-1">
-                      <StatusBadge estado={estado} />
+
+                    <div className="flex flex-col gap-1.5">
+                      <label
+                        htmlFor={`${formId}-edit-precio`}
+                        className="text-sm font-medium text-card-foreground"
+                      >
+                        <span className="inline-flex items-center gap-1.5">
+                          <DollarSign className="size-3.5" aria-hidden />
+                          Precio
+                          <span className="text-xs font-normal text-muted-foreground">
+                            (opcional)
+                          </span>
+                        </span>
+                      </label>
+                      <div className="relative">
+                        <DollarSign className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+                        <input
+                          id={`${formId}-edit-precio`}
+                          type="text"
+                          inputMode="decimal"
+                          value={precio}
+                          onChange={(e) =>
+                            setPrecio(e.target.value.slice(0, 20))
+                          }
+                          maxLength={20}
+                          autoComplete="off"
+                          placeholder="$45.000"
+                          className={cn(inputBase, inputOk)}
+                        />
+                      </div>
                     </div>
                   </div>
+                </section>
+
+                <div className="h-px bg-border" />
+
+                <section
+                  aria-labelledby={`${formId}-campos-section`}
+                  className="flex flex-col gap-3"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span
+                      id={`${formId}-campos-section`}
+                      className="font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground"
+                    >
+                      Items personalizados
+                    </span>
+                    <Button
+                      type="button"
+                      size="xs"
+                      variant="secondary"
+                      onClick={addCampoCustom}
+                    >
+                      <Plus className="size-3.5" />
+                      Agregar item
+                    </Button>
+                  </div>
+
+                  {camposCustom.length === 0 ? (
+                    <p className="rounded-lg border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
+                      Sin items personalizados. Agregá datos extra con su título
+                      y descripción (ej: Cliente, N° de factura, Garantía…).
+                    </p>
+                  ) : (
+                    <ul className="flex flex-col gap-2" role="list">
+                      {camposCustom.map((c) => (
+                        <li
+                          key={c.id}
+                          className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3"
+                        >
+                          <div className="flex items-start gap-2">
+                            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                              <div className="flex items-center gap-1.5">
+                                <Tag
+                                  className="size-3.5 shrink-0 text-muted-foreground"
+                                  aria-hidden
+                                />
+                                <label
+                                  htmlFor={`${formId}-campo-titulo-${c.id}`}
+                                  className="sr-only"
+                                >
+                                  Título del item
+                                </label>
+                                <input
+                                  id={`${formId}-campo-titulo-${c.id}`}
+                                  type="text"
+                                  value={c.titulo}
+                                  onChange={(e) =>
+                                    updateCampoCustom(c.id, {
+                                      titulo: e.target.value.slice(0, 80),
+                                    })
+                                  }
+                                  maxLength={80}
+                                  autoComplete="off"
+                                  placeholder="Título (ej: Cliente)"
+                                  aria-invalid={Boolean(
+                                    campoFieldErrors[c.id],
+                                  )}
+                                  aria-describedby={
+                                    campoFieldErrors[c.id]
+                                      ? `${formId}-campo-titulo-error-${c.id}`
+                                      : undefined
+                                  }
+                                  className={cn(
+                                    'h-9 w-full rounded-md border bg-background px-2.5 pl-7 text-sm font-medium text-foreground placeholder:font-normal placeholder:text-muted-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring/40',
+                                    campoFieldErrors[c.id]
+                                      ? 'border-destructive focus:ring-destructive/40'
+                                      : 'border-input',
+                                  )}
+                                />
+                              </div>
+                              {campoFieldErrors[c.id] ? (
+                                <p
+                                  id={`${formId}-campo-titulo-error-${c.id}`}
+                                  role="alert"
+                                  className="flex items-center gap-1.5 pl-7 text-xs text-destructive"
+                                >
+                                  <AlertCircle
+                                    className="size-3.5"
+                                    aria-hidden
+                                  />
+                                  {campoFieldErrors[c.id]}
+                                </p>
+                              ) : null}
+                            </div>
+                            <Button
+                              type="button"
+                              size="icon-sm"
+                              variant="ghost"
+                              className="text-muted-foreground hover:text-destructive"
+                              onClick={() => removeCampoCustom(c.id)}
+                              aria-label="Eliminar item"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </Button>
+                          </div>
+                          <div className="relative">
+                            <label
+                              htmlFor={`${formId}-campo-desc-${c.id}`}
+                              className="sr-only"
+                            >
+                              Descripción del item
+                            </label>
+                            <textarea
+                              id={`${formId}-campo-desc-${c.id}`}
+                              value={c.descripcion}
+                              onChange={(e) =>
+                                updateCampoCustom(c.id, {
+                                  descripcion: e.target.value.slice(0, 500),
+                                })
+                              }
+                              rows={2}
+                              maxLength={500}
+                              placeholder="Descripción (opcional)"
+                              className="w-full resize-none rounded-md border border-input bg-background px-2.5 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                            />
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </section>
 
                 <div className="h-px bg-border" />

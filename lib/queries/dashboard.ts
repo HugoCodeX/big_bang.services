@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import type {
+  CampoCustom,
   EstadoEquipo,
   Equipo,
   Mantenimiento,
@@ -26,6 +27,7 @@ export async function getEquipos(): Promise<Equipo[]> {
     marca: row.marca ?? null,
     cliente: row.cliente,
     telefono: row.telefono,
+    precio: row.precio ?? null,
     comentarios: row.comentarios,
     estado: row.estado as EstadoEquipo,
     fechaIngreso: row.fechaIngreso,
@@ -39,6 +41,9 @@ export async function getEquipoWithMantenimientos(id: number) {
       mantenimientos: {
         orderBy: { fecha: 'desc' },
       },
+      camposCustom: {
+        orderBy: { id: 'asc' },
+      },
     },
   })
 
@@ -50,6 +55,7 @@ export async function getEquipoWithMantenimientos(id: number) {
     marca: row.marca ?? null,
     cliente: row.cliente,
     telefono: row.telefono,
+    precio: row.precio ?? null,
     comentarios: row.comentarios,
     estado: row.estado as EstadoEquipo,
     fechaIngreso: row.fechaIngreso,
@@ -60,6 +66,12 @@ export async function getEquipoWithMantenimientos(id: number) {
       componente: m.componente,
       observacion: m.observacion,
       fecha: m.fecha,
+    })),
+    camposCustom: row.camposCustom.map((c): CampoCustom => ({
+      id: c.id,
+      equipoId: c.equipoId,
+      titulo: c.titulo,
+      descripcion: c.descripcion,
     })),
   }
 }

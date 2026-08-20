@@ -45,6 +45,7 @@ export interface Equipo {
   marca: string | null
   cliente: string
   telefono: string
+  precio: string | null
   comentarios: string
   estado: EstadoEquipo
   fechaIngreso: Date
@@ -57,6 +58,13 @@ export interface Mantenimiento {
   componente: string | null
   observacion: string
   fecha: Date
+}
+
+export interface CampoCustom {
+  id: number
+  equipoId: number
+  titulo: string
+  descripcion: string
 }
 
 export function formatOrderNumber(id: number): string {

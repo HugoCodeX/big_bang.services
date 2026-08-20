@@ -182,6 +182,12 @@ export function EquipmentTable({
                 </th>
                 <th
                   scope="col"
+                  className="px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-widest text-muted-foreground"
+                >
+                  Precio
+                </th>
+                <th
+                  scope="col"
                   className="px-5 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-widest text-muted-foreground"
                 >
                   Acciones
@@ -230,6 +236,15 @@ export function EquipmentTable({
                     </td>
                     <td className="px-5 py-3.5">
                       <StatusBadge estado={equipo.estado} />
+                    </td>
+                    <td className="px-5 py-3.5">
+                      {equipo.precio ? (
+                        <span className="font-mono text-xs text-card-foreground">
+                          {equipo.precio}
+                        </span>
+                      ) : (
+                        <span className="italic text-muted-foreground">—</span>
+                      )}
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-1">
@@ -288,7 +303,14 @@ export function EquipmentTable({
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                  <StatusBadge estado={equipo.estado} />
+                  <div className="flex items-center gap-2">
+                    <StatusBadge estado={equipo.estado} />
+                    {equipo.precio ? (
+                      <span className="font-mono text-xs text-card-foreground">
+                        {equipo.precio}
+                      </span>
+                    ) : null}
+                  </div>
                   <span className="text-xs text-muted-foreground">
                     {equipo.cliente || '—'}
                   </span>

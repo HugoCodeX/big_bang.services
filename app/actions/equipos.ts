@@ -8,6 +8,7 @@ import {
   combineDateTimeInChile,
   getCurrentDateInChile,
   getCurrentTimeInChile,
+  type CampoCustom,
   type EstadoEquipo,
   type Mantenimiento,
   type TipoMantenimiento,
@@ -24,7 +25,10 @@ export async function fetchEquipoDetail(id: number) {
 
   const row = await prisma.equipo.findUnique({
     where: { id },
-    include: { mantenimientos: { orderBy: { fecha: 'desc' } } },
+    include: {
+      mantenimientos: { orderBy: { fecha: 'desc' } },
+      camposCustom: { orderBy: { id: 'asc' } },
+    },
   })
 
   if (!row) return null
@@ -35,6 +39,7 @@ export async function fetchEquipoDetail(id: number) {
     marca: row.marca ?? null,
     cliente: row.cliente,
     telefono: row.telefono,
+    precio: row.precio ?? null,
     comentarios: row.comentarios,
     estado: row.estado as EstadoEquipo,
     fechaIngreso: row.fechaIngreso,
@@ -45,6 +50,12 @@ export async function fetchEquipoDetail(id: number) {
       componente: m.componente,
       observacion: m.observacion,
       fecha: m.fecha,
+    })),
+    camposCustom: row.camposCustom.map((c): CampoCustom => ({
+      id: c.id,
+      equipoId: c.equipoId,
+      titulo: c.titulo,
+      descripcion: c.descripcion,
     })),
   }
 }
@@ -108,6 +119,36 @@ export async function updateEquipo(formData: FormData) {
   const estado = formData.get('estado') as EstadoEquipo
   const cliente = (formData.get('cliente') as string | null)?.trim() || ''
   const telefono = (formData.get('telefono') as string | null)?.trim() || ''
+  const precio = (formData.get('precio') as string | null)?.trim() || null
+
+  const camposRaw = formData.get('camposCustom') as string | null
+  const campos: { id?: number; titulo: string; descripcion: string }[] = []
+  if (camposRaw) {
+    try {
+      const parsed = JSON.parse(camposRaw)
+      if (Array.isArray(parsed)) {
+        for (const item of parsed) {
+          if (!item || typeof item.titulo !== 'string') continue
+          const titulo = item.titulo.trim().slice(0, 80)
+          if (!titulo) continue
+          const descripcion =
+            typeof item.descripcion === 'string'
+              ? item.descripcion.trim().slice(0, 500)
+              : ''
+          campos.push({
+            id:
+              typeof item.id === 'number' && item.id > 0
+                ? item.id
+                : undefined,
+            titulo,
+            descripcion,
+          })
+        }
+      }
+    } catch {
+      // se ignora un payload inválido
+    }
+  }
 
   if (!id) {
     return { error: 'Falta el identificador del equipo.' }
@@ -116,13 +157,46 @@ export async function updateEquipo(formData: FormData) {
     return { error: 'El estado es obligatorio.' }
   }
 
-  await prisma.equipo.update({
-    where: { id },
-    data: {
-      estado,
-      cliente,
-      telefono,
-    },
+  await prisma.$transaction(async (tx) => {
+    await tx.equipo.update({
+      where: { id },
+      data: {
+        estado,
+        cliente,
+        telefono,
+        precio,
+      },
+    })
+
+    const existing = await tx.campoCustom.findMany({
+      where: { equipoId: id },
+      select: { id: true },
+    })
+    const existingIds = new Set(existing.map((c) => c.id))
+    const incomingIds = new Set(
+      campos.filter((c) => c.id !== undefined).map((c) => c.id as number),
+    )
+
+    if (incomingIds.size === 0) {
+      await tx.campoCustom.deleteMany({ where: { equipoId: id } })
+    } else {
+      await tx.campoCustom.deleteMany({
+        where: { equipoId: id, id: { notIn: [...incomingIds] } },
+      })
+    }
+
+    for (const c of campos) {
+      if (c.id !== undefined && existingIds.has(c.id)) {
+        await tx.campoCustom.update({
+          where: { id: c.id },
+          data: { titulo: c.titulo, descripcion: c.descripcion },
+        })
+      } else if (c.id === undefined) {
+        await tx.campoCustom.create({
+          data: { equipoId: id, titulo: c.titulo, descripcion: c.descripcion },
+        })
+      }
+    }
   })
 
   revalidatePath('/dashboard')

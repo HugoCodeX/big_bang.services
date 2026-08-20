@@ -3,10 +3,12 @@
 import { useEffect, useState, useTransition } from 'react'
 import {
   Calendar,
+  DollarSign,
   Hash,
   Loader2,
   MessageSquare,
   Phone,
+  Tag,
   User,
   Wrench,
   X,
@@ -14,6 +16,7 @@ import {
 import {
   formatDateTimeInChile,
   formatOrderNumber,
+  type CampoCustom,
   type EstadoEquipo,
   type Mantenimiento,
 } from '@/lib/equipos'
@@ -39,10 +42,12 @@ export interface EquipoDetailData {
   marca: string | null
   cliente: string
   telefono: string
+  precio: string | null
   comentarios: string
   estado: EstadoEquipo
   fechaIngreso: Date
   mantenimientos: Mantenimiento[]
+  camposCustom: CampoCustom[]
 }
 
 function FieldRow({
@@ -175,6 +180,11 @@ export function VerDetallesModal({
                   icon={Phone}
                 />
                 <FieldRow
+                  label="Precio"
+                  value={data.precio}
+                  icon={DollarSign}
+                />
+                <FieldRow
                   label="Tipo de equipo"
                   value={data.tipo}
                   icon={Wrench}
@@ -213,6 +223,42 @@ export function VerDetallesModal({
                   <StatusBadge estado={data.estado} />
                 </div>
               </section>
+
+              {data.camposCustom.length > 0 ? (
+                <>
+                  <div className="h-px bg-border" />
+
+                  <section
+                    aria-label="Items personalizados"
+                    className="flex flex-col gap-3"
+                  >
+                    <div>
+                      <h3 className="text-sm font-semibold text-card-foreground">
+                        Items personalizados
+                      </h3>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Datos adicionales cargados a esta orden.
+                      </p>
+                    </div>
+                    <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {data.camposCustom.map((c) => (
+                        <div
+                          key={c.id}
+                          className="flex flex-col gap-1 rounded-lg border border-border bg-secondary/40 p-3"
+                        >
+                          <dt className="flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                            <Tag className="size-3" aria-hidden />
+                            {c.titulo}
+                          </dt>
+                          <dd className="whitespace-pre-wrap text-sm text-card-foreground">
+                            {c.descripcion.trim() || '—'}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </section>
+                </>
+              ) : null}
 
               <div className="h-px bg-border" />
 
