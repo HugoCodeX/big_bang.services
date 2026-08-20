@@ -723,7 +723,7 @@ export function EditEquipoModal({
                           }
                           maxLength={20}
                           autoComplete="off"
-                          placeholder="$45.000"
+                          placeholder=""
                           className={cn(inputBase, inputOk)}
                         />
                       </div>
