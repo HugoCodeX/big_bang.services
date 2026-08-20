@@ -18,6 +18,8 @@ export default async function DashboardPage() {
         <StatCards
           totalActivos={stats.totalActivos}
           ingresados={stats.ingresados}
+          enDiagnostico={stats.enDiagnostico}
+          esperandoRepuesto={stats.esperandoRepuesto}
         />
 
         <EquipmentTable initialEquipos={equipos} />

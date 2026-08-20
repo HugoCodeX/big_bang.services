@@ -8,12 +8,15 @@ import type {
 } from '@/lib/equipos'
 
 export async function getEstadisticas() {
-  const [totalActivos, ingresados] = await Promise.all([
-    prisma.equipo.count({ where: { estado: { not: 'Entregado' } } }),
-    prisma.equipo.count({ where: { estado: 'Ingresado' } }),
-  ])
+  const [totalActivos, ingresados, enDiagnostico, esperandoRepuesto] =
+    await Promise.all([
+      prisma.equipo.count({ where: { estado: { not: 'Entregado' } } }),
+      prisma.equipo.count({ where: { estado: 'Ingresado' } }),
+      prisma.equipo.count({ where: { estado: 'En diagnóstico' } }),
+      prisma.equipo.count({ where: { estado: 'Esperando repuesto' } }),
+    ])
 
-  return { totalActivos, ingresados }
+  return { totalActivos, ingresados, enDiagnostico, esperandoRepuesto }
 }
 
 export async function getEquipos(): Promise<Equipo[]> {

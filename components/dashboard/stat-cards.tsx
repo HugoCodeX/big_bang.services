@@ -1,11 +1,15 @@
-import { Inbox, Wrench } from 'lucide-react'
+import { Inbox, Loader, PackageSearch, Wrench } from 'lucide-react'
 
 export function StatCards({
   totalActivos,
   ingresados,
+  enDiagnostico,
+  esperandoRepuesto,
 }: {
   totalActivos: number
   ingresados: number
+  enDiagnostico: number
+  esperandoRepuesto: number
 }) {
   const stats = [
     {
@@ -18,12 +22,22 @@ export function StatCards({
       value: ingresados,
       icon: Inbox,
     },
+    {
+      label: 'En diagnóstico',
+      value: enDiagnostico,
+      icon: Loader,
+    },
+    {
+      label: 'Esperando repuesto',
+      value: esperandoRepuesto,
+      icon: PackageSearch,
+    },
   ]
 
   return (
     <section
       aria-label="Estadísticas principales"
-      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
     >
       {stats.map((stat) => (
         <div
